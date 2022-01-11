@@ -7,6 +7,8 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -23,7 +25,7 @@
 class Shader
 {
 public:
-    unsigned int ID{};
+    unsigned int ID;
     bool usingTess = false;
 
     Shader();
@@ -48,6 +50,10 @@ public:
     }
     void setMat4(const std::string &name,const GLfloat * value) const{
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),1,GL_FALSE,value);
+    }
+    void setMat4(const std::string &name, const glm::mat4 &mat) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 private:
     // utility function for checking shader compilation/linking errors.
