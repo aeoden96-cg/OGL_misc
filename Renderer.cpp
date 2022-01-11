@@ -1,6 +1,15 @@
 #include <numeric>
 #include "Renderer.hpp"
 
+Renderer::Renderer(bool STATIC_DRAW,GLenum draw_mode):
+STATIC_DRAW(STATIC_DRAW),
+draw_type(STATIC_DRAW?GL_STATIC_DRAW:GL_DYNAMIC_DRAW),
+VAO(0),
+draw_mode(draw_mode)
+{
+
+}
+
 void Renderer::enableVA(unsigned int numOfInputAttributes) {
     for (int i=0;i<numOfInputAttributes ; i++)
         glEnableVertexAttribArray(i);
@@ -11,7 +20,7 @@ void Renderer::disableVA(unsigned int numOfInputAttributes) {
         glDisableVertexAttribArray(i);
 }
 
-void Renderer::draw(
+void Renderer::_draw(
         const glm::mat4 &mvp,
         unsigned int count,
         Shader &current_shader,
@@ -21,7 +30,7 @@ void Renderer::draw(
     current_shader.setMat4("MVP" ,&mvp[0][0]);
 
     if(!current_shader.isUsingTess())
-        glDrawArrays(GL_POINTS,0,(int)count);
+        glDrawArrays(draw_mode,0,(int)count);
     else{
         glPatchParameteri(GL_PATCH_VERTICES,1);
         glDrawArrays(GL_PATCHES,0,(int)count);
@@ -30,19 +39,19 @@ void Renderer::draw(
     disableVA(numOfInputAttributes);
 }
 
-void Renderer::setupData(
+void Renderer::_setup_data(
         const std::vector<GLfloat> &points,
         const std::vector<int> &positions) {
 
     unsigned short W = std::accumulate(positions.begin(), positions.end(), 0);
 
-    GLuint VAO;
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     GLuint VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, (unsigned)(sizeof(GLfloat) * points.size()), &points[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (unsigned)(sizeof(GLfloat) * points.size()), &points[0], draw_type);
     int i=0;
     unsigned short formerAttribs=0;
     for (auto& currentAttrib : positions)
@@ -68,14 +77,26 @@ void Renderer::render(
 
     current_shader.use();
 
-    Renderer::setupData(data,positions);
+    if (!STATIC_DRAW)
+        Renderer::_setup_data(data, positions);
+    else
+        glBindVertexArray(VAO);
+
     int sum = std::accumulate(positions.begin(), positions.end(), 0);
+
     for (const auto& mvp: MVPs){
-        Renderer::draw(mvp,
-                       data.size()/sum,   // = num of points to be rendered
-                       current_shader,
-                       positions.size());
+        Renderer::_draw(mvp,
+                        data.size() / sum,   // = num of points to be rendered
+                        current_shader,
+                        positions.size());
     }
 
 
 }
+
+void Renderer::setup_data(const std::vector<GLfloat> &points, const std::vector<int> &positions) {
+    assert(STATIC_DRAW); // data setups automatically if rendering is set to dynamic
+
+    _setup_data(points,positions);
+}
+
