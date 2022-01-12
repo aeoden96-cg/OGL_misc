@@ -1,2 +1,3 @@
-# opengl_libs
-Various libs for OpenGL
+# Various libs for OpenGL
+Authors mentioned in each directory.
+
