@@ -43,6 +43,12 @@ void Renderer::_setup_data(
         const std::vector<GLfloat> &points,
         const std::vector<int> &positions) {
 
+    if(STATIC_DRAW){
+        this->positions = positions;
+        this->NUM_OF_POINTS = points.size();
+    }
+
+
     unsigned short W = std::accumulate(positions.begin(), positions.end(), 0);
 
 

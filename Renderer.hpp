@@ -13,6 +13,7 @@ class Renderer {
 private:
 
     std::vector<int> positions;
+    int NUM_OF_POINTS;
     GLuint VAO;
     int draw_type;
 public:
