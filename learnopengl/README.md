@@ -1,5 +1,6 @@
 # learnopengl
-Couple of classes gathered from excellent tutorials @ learnopengl.com for Assimp importing,Camera work etc.
+Couple of classes gathered from excellent 
+tutorials @ learnopengl.com for Assimp importing,Camera work etc.
 
 All code samples, unless explicitly stated otherwise, 
 are licensed under the terms of the CC BY-NC 4.0 license 
