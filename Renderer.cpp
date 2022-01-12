@@ -10,22 +10,21 @@ draw_mode(draw_mode)
 
 }
 
-void Renderer::enableVA(unsigned int numOfInputAttributes) {
-    for (int i=0;i<numOfInputAttributes ; i++)
+void Renderer::enableVA() const {
+    for (int i=0;i<this->num_of_input_attributes ; i++)
         glEnableVertexAttribArray(i);
 }
 
-void Renderer::disableVA(unsigned int numOfInputAttributes) {
-    for (int i=0;i<numOfInputAttributes ; i++)
+void Renderer::disableVA() const {
+    for (int i=0;i<this->num_of_input_attributes ; i++)
         glDisableVertexAttribArray(i);
 }
 
-void Renderer::_draw(
-        const glm::mat4 &mvp,
-        unsigned int count,
-        Shader &current_shader,
-        unsigned int numOfInputAttributes) {
-    enableVA(numOfInputAttributes);
+void Renderer::_draw(const glm::mat4 &mvp, Shader &current_shader) {
+
+    unsigned int count = this->data_len / this->sum_of_input_attributes;
+
+    enableVA();
 
     current_shader.setMat4("MVP" ,&mvp[0][0]);
 
@@ -36,38 +35,34 @@ void Renderer::_draw(
         glDrawArrays(GL_PATCHES,0,(int)count);
     }
 
-    disableVA(numOfInputAttributes);
+    disableVA();
 }
 
 void Renderer::_setup_data(
         const std::vector<GLfloat> &points,
         const std::vector<int> &positions) {
 
-    if(STATIC_DRAW){
-        this->positions = positions;
-        this->NUM_OF_POINTS = points.size();
-    }
+    this->data_len = points.size();
 
-
-    unsigned short W = std::accumulate(positions.begin(), positions.end(), 0);
-
+    this->sum_of_input_attributes = std::accumulate(positions.begin(), positions.end(), 0);
+    this->num_of_input_attributes = positions.size();
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     GLuint VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, (unsigned)(sizeof(GLfloat) * points.size()), &points[0], draw_type);
+    glBufferData(GL_ARRAY_BUFFER, (unsigned)(sizeof(GLfloat) * this->data_len ), &points[0], draw_type);
     int i=0;
     unsigned short formerAttribs=0;
     for (auto& currentAttrib : positions)
     {
         glVertexAttribPointer(
-                i,                                              //i.th attribute
-                currentAttrib,                                  //num of dimensions for ith attrib
+                i,                                                  //i.th attribute
+                currentAttrib,                                      //num of dimensions for ith attrib
                 GL_FLOAT,
                 GL_FALSE,
-                (int)(sizeof(GLfloat)*W),                            //width of one row
+                (int)(sizeof(GLfloat)* this->sum_of_input_attributes ),        //width of one row
                 (const GLvoid *)(sizeof(GLfloat) * formerAttribs)   //offset
         );
         formerAttribs+=currentAttrib;
@@ -75,11 +70,13 @@ void Renderer::_setup_data(
     }
 }
 
-void Renderer::render(
-        Shader &current_shader,
-        std::vector<int> positions,
-        const std::vector<GLfloat> &data,
-        std::vector<glm::mat4> &MVPs) {
+void Renderer::render_static(Shader& shader,const std::vector<glm::mat4>& MVPs){
+    assert(STATIC_DRAW);
+    this->render(shader,MVPs,{},std::vector<GLfloat>());
+}
+
+void Renderer::render(Shader &current_shader, const std::vector<glm::mat4> &MVPs, const std::vector<int>& positions,
+                      const std::vector<GLfloat> &data ) {
 
     current_shader.use();
 
@@ -88,21 +85,12 @@ void Renderer::render(
     else
         glBindVertexArray(VAO);
 
-    int sum = std::accumulate(positions.begin(), positions.end(), 0);
-
     for (const auto& mvp: MVPs){
-        Renderer::_draw(mvp,
-                        data.size() / sum,   // = num of points to be rendered
-                        current_shader,
-                        positions.size());
+        Renderer::_draw(mvp,current_shader);
     }
 
 
 }
 
-void Renderer::setup_data(const std::vector<GLfloat> &points, const std::vector<int> &positions) {
-    assert(STATIC_DRAW); // data setups automatically if rendering is set to dynamic
 
-    _setup_data(points,positions);
-}
 
