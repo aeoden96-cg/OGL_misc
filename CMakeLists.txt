@@ -16,4 +16,18 @@ set_target_properties(RENDERER PROPERTIES PUBLIC_HEADER Renderer.hpp)
 target_include_directories (RENDERER PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 
+find_package(Freetype REQUIRED)
+
+
+add_library(TEXT_RENDERER
+
+        TextRenderer.cpp
+        TextRenderer.hpp
+        )
+target_link_libraries(TEXT_RENDERER
+        ${FREETYPE_LIBRARIES})
+set_target_properties(TEXT_RENDERER PROPERTIES PUBLIC_HEADER TextRenderer.hpp)
+target_include_directories (TEXT_RENDERER PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${FREETYPE_INCLUDE_DIRS})
+
+
 
