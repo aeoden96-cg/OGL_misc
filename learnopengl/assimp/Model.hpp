@@ -37,8 +37,6 @@ public:
     string directory;
     bool gammaCorrection{};
 
-
-
     Model()= default;
 
     void load(string const& path,bool gamma = false){

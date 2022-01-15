@@ -24,10 +24,9 @@ void TextRenderer::render(const std::string &text, float x, float y, float scale
     glBindVertexArray(VAO);
 
     // iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++)
+    for(char c: text)
     {
-        Character ch = Characters[*c];
+        Character ch = Characters[c];
 
         float text_xpos = x + (float)ch.Bearing.x * scale;
         float text_ypos = y - (float)(ch.Size.y - ch.Bearing.y) * scale;
