@@ -30,7 +30,9 @@ public:
 
     Shader();
     unsigned int load_shaders(std::initializer_list<std::string> l);
-    bool isUsingTess(){
+    unsigned int loadShaders(std::initializer_list<std::string> l);
+
+    bool isUsingTess() const{
         return usingTess;
     }
 

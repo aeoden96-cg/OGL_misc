@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_subdirectory(learnopengl)
+add_subdirectory(other_resources/learnopengl)
 
 add_library(SHADER
         Shader.h

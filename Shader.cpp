@@ -38,8 +38,17 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type)   
 
 
 
-unsigned int Shader::load_shaders(std::initializer_list<std::string> l){
-    if (l.size() !=5) throw std::logic_error("not implemented for <5");
+unsigned int Shader::load_shaders(std::initializer_list<std::string> ll){
+
+    std::vector<std::string> l;
+    for(const auto& i: ll) l.push_back(i);
+
+    if (ll.size() ==2){
+        l.emplace_back("");
+        l.emplace_back("");
+        l.emplace_back("");
+    }
+    else if (ll.size() !=5) throw std::logic_error("not implemented for <5");
 
 
 
@@ -108,18 +117,21 @@ unsigned int Shader::load_shaders(std::initializer_list<std::string> l){
         std::string code;
         std::ifstream file;
         file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+
+
         try
         {
-
             std::stringstream stream;
-            //std::cout << shader_path.c_str() <<std::endl;
+            std::cout << shader_path.c_str() <<std::endl;
+
             file.open(shader_path.c_str());
-
             stream << file.rdbuf();
-
             file.close();
 
             code   = stream.str();
+
+            //std::cout << code << std::endl;
+
         }
         catch (std::ifstream::failure& e)
         {
@@ -166,4 +178,8 @@ unsigned int Shader::load_shaders(std::initializer_list<std::string> l){
 
 
 
+}
+
+unsigned int Shader::loadShaders(std::initializer_list<std::string> l) {
+    return Shader::load_shaders(l);
 }
